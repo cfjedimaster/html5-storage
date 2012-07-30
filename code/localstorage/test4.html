@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<script>
+
+function init() {
+
+	function storageHandler(e) {
+		console.log("Event Handler ran");
+		console.dir(e);
+	}
+
+	window.addEventListener("storage", storageHandler, false);
+
+	function clickHandler() {
+		var numClicks = localStorage["numClicks"];
+		if(!numClicks) numClicks=0;
+		else numClicks = parseInt(numClicks);
+
+		numClicks++;
+
+		var domItm = document.querySelector("#domItem");
+		domItm.innerHTML = "You have clicked "+numClicks +" times.";
+
+		localStorage["numClicks"] = numClicks;
+
+	}
+
+	document.querySelector("#testButton").addEventListener("click", clickHandler, false);
+
+}
+</script>
+</head>
+
+<body onload="init()">
+
+<button id="testButton">Click Me</button>
+
+<div id="domItem"></div>
+
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+
+<head>
+<script src="../jquery.js"></script>
+<title>IndexedDB Demo</title>
+<script>
+// https://developer.mozilla.org/en/IndexedDB/Using_IndexedDB
+var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
+var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+
+//global handle
+var db;
+
+//Utility function for random names
+function randName() {
+	var fnames = ["Adam","Alex","Abby","Andrew","Adonis","Alec","Anthony","Bobby","Bill","Beavis","Blaine","Blaire","Brian","Cam","Charlie","Charles","Corwin", "Dina","Dan","Derick","Demeter",
+				  "Eric","Erin","Elric","Ead", "Frank","Fauna", "Flip", "Frenchie", "George", "Gill", "Gianna", "Gilbert", "Henry", "Hank", "Hillary", "Hop","Ignatious","Iggy","Jacob", "Jamie", "James", "Jennifer", "Jules", 
+				  "Karen", "Kris", "Kevin", "Laura", "Leah", "Lane", "Lucas", "Lynn", "Mary", "Margaret", "Moses", "Nancy", "Noah", "Ophelia", "Olivia", "Paul", "Peter", "Raymond", "Randolp", "Rudy", "Sam", "Sarah", 
+				  "Sally", "Sean", "Ted", "Theodore", "Tammy", "Tiffany", "Victor", "Vance", "Yorick", "Zelda"];
+	return fnames[Math.floor(Math.random() * fnames.length)];
+}
+
+$(document).ready(function() {
+
+	//remove to test
+	//indexedDB.deleteDatabase("test4");
+
+	var openRequest = indexedDB.open("test4",1);
+
+	//I'm run when version changes, or on first hit
+	openRequest.onupgradeneeded = function(e) {
+		console.log("running onupgradeneeded");
+
+		var thisDb = e.target.result;
+
+		//uncomment for quick testing
+		//thisDb.deleteObjectStore("test");
+
+		//Create objectStore
+		if(!thisDb.objectStoreNames.contains("test")) {
+			console.log("I need to make the test objectstore");
+			var objectStore = thisDb.createObjectStore("test", { keyPath: "id", autoIncrement:true });  
+			objectStore.createIndex("name","name", {unique:false});
+		}
+
+
+	}
+
+	//I'm run when after onupgradeneeded, if it is run
+	openRequest.onsuccess = function(e) {
+		console.log("Ready to roll...");
+
+		db = e.target.result;
+
+		db.onerror = function(event) {
+		  // Generic error handler for all errors targeted at this database's
+		  // requests!
+		  console.log("Database error: " + event.target.errorCode);
+		  console.dir(event.target);
+		};
+
+
+		//Now we can listen for data adds and lists
+		$("#addData").on("click", addData);
+		$("#getByKey").on("click", getByKey);
+		$("#getByKeyRange").on("click", getByKeyRange);
+		$("#getByNameRange").on("click", getByNameRange);
+	}
+
+});
+
+function addData() {
+
+	var transaction = db.transaction(["test"], "readwrite");
+	var objectStore = transaction.objectStore("test");
+	for(var i=0;i<5000; i++) {
+		var request = objectStore.add(
+						{
+							"name":randName(),
+							"created":new Date()
+						}
+					);
+	}	
+
+	//Technically this is inaccurate since the calls above are asynch
+	objectStore.count().onsuccess = function(event) {
+		$("#size").text("Size of objectStore is "+event.target.result);
+	}
+}
+
+function getByKey(e) {
+	e.preventDefault();
+	var key = $("#keyid").val();
+
+	var transaction = db.transaction(["test"], "readonly");
+	var objectStore = transaction.objectStore("test");
+
+	//cast this or else
+	var ob = objectStore.get(Number(key));	
+	ob.onsuccess = function(e) {
+		var result = e.target.result;
+		console.dir(result);
+		if(result) {
+			var s = "<h2>Key "+key+"</h2><p>";
+			for(var field in result) {
+				s+= field+"="+result[field]+"<br/>";
+			}
+			$("#data").html(s);
+		} else {
+			$("#data").html("<h2>No match</h2>");
+		}
+	}
+
+}
+
+function getByKeyRange(e) {
+	e.preventDefault();
+	var keyrange = $("#keyrange").val();
+	var lowend = Number(keyrange.split(",")[0]);
+	var highend = Number(keyrange.split(",")[1]);
+
+	var transaction = db.transaction(["test"], "readonly");
+	var objectStore = transaction.objectStore("test");
+
+	//make a range
+	var range = IDBKeyRange.bound(lowend,highend);
+
+	//First do a count
+	var countReq = objectStore.count(range);
+	countReq.onsuccess = function(e) {
+		$("#size").html("The range matched "+e.target.result+" items.");
+	}
+
+	//Now get my stuff per range
+	var request = objectStore.openCursor(range);
+	var s = [];
+
+	//Note to self: This applies to count as well, I may want to refactor it. Hasn't triggered an issue yet.
+	transaction.oncomplete = function(e) {
+		$("#data").html(s.toString());
+	}
+
+	request.onsuccess = function(e) {
+		var cursor = e.target.result;
+
+		if(cursor) {
+			s.push(cursor.key);
+			cursor.continue();
+		}
+	}
+
+}
+
+/*
+This is VERY similar to getByKeyRange, just keeping it separate as I plan to discuss them separately when presenting
+*/
+function getByNameRange(e) {
+	e.preventDefault();
+	var namerange = $("#namerange").val();
+
+	var parts = namerange.split(",");
+	var lowend = parts[0];
+	if(parts.length == 2) var highend = parts[1];
+
+	var transaction = db.transaction(["test"], "readonly");
+	var objectStore = transaction.objectStore("test");
+	var index = objectStore.index("name");
+
+	//make a range
+	var range;
+	if(highend) range = IDBKeyRange.bound(lowend,highend);
+	else range = IDBKeyRange.lowerBound(lowend);
+
+	//First do a count
+	var countReq = index.count(range);
+	countReq.onsuccess = function(e) {
+		$("#size").html("The range matched "+e.target.result+" items.");
+	}
+
+	//Now get my stuff per range
+	var request = index.openCursor(range);
+	var s = [];
+
+	//Note to self: This applies to count as well, I may want to refactor it. Hasn't triggered an issue yet.
+	transaction.oncomplete = function(e) {
+		$("#data").html(s.toString());
+	}
+
+	request.onsuccess = function(e) {
+		var cursor = e.target.result;
+
+		if(cursor) {
+			s.push(cursor.value.id+"="+cursor.key+" ");
+			cursor.continue();
+		}
+	}
+
+}
+
+</script>
+</head>
+
+<body>
+
+<button id="addData">Add a bunch of stuff</button><br/>
+<input id="keyid"> <button id="getByKey">Get the object with this key</button><br/>
+<input id="keyrange"> <button id="getByKeyRange">Get by key range (hint: use x,y)</button><br/>
+<input id="namerange"> <button id="getByNameRange">Get by name range (hint: use x,y)</button><br/>
+
+
+<div id="size"></div>
+
+<div id="data"></div>
+
+
+</body>
+</html>

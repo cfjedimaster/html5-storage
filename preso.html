@@ -1,0 +1,383 @@
+<!doctype html>
+<html>
+<head>
+<title>HTML5 Storage</title>
+<link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="revealjs/css/reset.css">
+<link rel="stylesheet" href="revealjs/css/main.css">
+<link rel="stylesheet" href="revealjs/lib/css/zenburn.css">
+<link rel="stylesheet" href="revealjs/css/print.css" type="text/css" media="print">
+<style>
+html.intro body {
+	background:url("images/raiders_warehouse.jpg");
+	background-position:center;
+	background-size: 100%;
+}
+
+html.intro h1, html.intro p {
+	background-color: rgba(0,0,0,0.7);
+}
+
+iframe {
+	width: 700px;
+	height: 320px;
+}
+
+dl {
+	text-align: left;
+}
+dt {
+	font-weight: bold;
+}
+dd {
+	margin-left: 50px;
+	margin-right: 50px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="reveal">
+
+	<div class="slides"> 
+
+		<section data-state="intro">
+			<h1>HTML5 Storage</h1>
+			<p>
+				by Raymond Camden
+			</p>
+		</section>
+
+		<section>
+			<h2>This Guy</h2>
+			<ul>
+				<li>Raymond Camden</li>
+				<li>Developer Evangelist</li>
+				<li>Blogging at raymondcamden.com</li>
+				<li>Tweeting at @cfjedimaster</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>Warning...</h2>
+			<ul>
+				<li>Lot's of code....</li>
+				<li>You can download the code (and these slides) and play with it</li>
+				<li>github.com/cfjedimaster/html5-storage</li>
+				<li>jQuery fanboy in effect</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>Why store anything?</h2>
+			<ul>
+				<li>HTTP can be expensive</li>
+				<li>Sometimes data doesn't change</li>
+				<li>Connections sometimes aren't</li>
+			</ul>
+			<aside class="notes">
+				HTTP isn't too expensive, obviously, since we use it all day long. But when you 
+				take a fancy Ajax Web 3.0 app doing 10-20 different HTTP requests in the back end, 
+				it can add up quickly. Consider mentioning LighthousePro experience.
+
+				Your data may change rarely. For example, your company's offices.
+
+				Guess what - sometimes your offline. 
+			</aside>
+		</section>
+
+		<section>
+			<h2>The Game Plan</h2>
+			<ul>
+				<li>Talk about the technology</li>
+				<li>Going to show you some demos</li>
+				<li>Show you the support matrix</li>
+			</ul>
+			<p class="fragment">
+				<img src="images/muhahaha.jpg">
+			</p>
+			<aside class="notes">
+				I cannot stress enough: You need to stop thinking about HTML5 features are binary. 
+				Even if 80% of your audience can't use a feature, you can provide incredible value to
+				20% with an small amount of effort. Those 20% can turn around and help you get more 
+				customers.
+
+				Consider: Geoposition+Store example
+			</aside>
+		</section>
+
+		<section>
+			<h2>The Technologies</h2>
+			<ul>
+				<li>Cookies (no, really)</li>
+				<li>Local/Session Storage</li>
+				<li>WebSQL</li>
+				<li>IndexedDB</li>
+				<li>File API</li>
+			</ul>
+			<aside class="notes">
+				Maybe mention offline support since it could possible be considered storage.
+			</aside>
+		</section>
+
+		<section>
+			<h2>Cookies</h2>
+			<ul>
+				<li>Oldest and probably the safest</li>
+				<li>Read/Write on both client and server (*)</li>
+				<li>Reread the above - it gets sent back and forth</li>
+				<li>Limited on both sides in terms of count/individual size</li>
+				<li>Simple values, but you could encode</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>Cookies - Possible Uses?</h2>
+			<ul>
+				<li>Authentication/Authorization</li>
+				<li>Preferences that the server needs to know</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>Cookies - How Many?</h2>
+			<ul>
+				<li>According to the <a href="http://www.ietf.org/rfc/rfc2109.txt">spec:</a> (Feb 1997)</li>
+				<li>At least 300 cookies (per browser)</li>
+				<li>At least 4096 bytes per cookie</li>
+				<li>At least 20 per unique host</li>
+				<li class="fragment"><strong>No</strong> good way to handle rejection</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>Cookies - Example</h2>
+			<pre><code>
+document.cookie="key=value;args..";
+			</code></pre>
+		</section>
+
+		<section>
+			<h2>Cookies - Demo</h2>
+			<img src="images/Stop-Hammer-Time.jpg">
+		</section>
+
+		<section>
+			<h2>Cookies - When can I use it?</h2>
+			<p>
+				Everywhere! <sup>*</sup>
+			</p>
+		</section>
+
+		<section>
+			<h2>LocalStorage (aka DOM Storage)</h2>
+			<ul>
+				<li>API to set name/value pairs, remove items</li>
+				<li>You can also directly get/set</li>
+				<li>Simple values (JSON FTW)</li>
+				<li>Totally stored on the client only</li>
+				<li>Session based version</li>
+				<li><a href="http://www.w3.org/TR/webstorage/">Spec</a></li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>LocalStorage - Possible Uses?</h2>
+			<ul>
+				<li>Preferences your server doesn't need to know</li>
+				<li>Search history</li>
+				<li>"Favorited" content items</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>LocalStorage - How Many?</h2>
+			<ul>
+				<li>2.49 Megs total - on average</li>
+				<li>Details here: <a href="http://dev-test.nemikor.com/web-storage/support-test/" target="_new">http://dev-test.nemikor.com/web-storage/support-test/</a></li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>LocalStorage - Example</h2>
+			<pre><code>
+//API way
+localStorage.setItem("name", "value");
+var x = localStorage.getItem("name");
+localStorage.removeItem("name");
+localStorage.clear();
+
+//Non API way
+localStorage["name"] = "value";
+var x = localStorage["name"];
+delete localStorage["name"];
+for(var x in localStorage) delete localStorage[x];
+			</code></pre>
+		</section>
+
+		<section>
+			<h2>LocalStorage - Demo</h2>
+			<img src="images/Stop-Hammer-Time.jpg">
+		</section>
+
+		<section>
+			<h2>LocalStorage - FYI</h2>
+			<ul>
+				<li>Chrome Dev Tools (view/edit)</li>
+				<li>LocalStorage Monitor (<a href="https://chrome.google.com/webstore/detail/bpidlidmmmnapeldonddkjmmjkpeiabi">chrome web store</a>)</li>
+				<li>There <i>is</i> an event - but it is wonky (test4.html)</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>LocalStorage - When can I use it?</h2>
+			<iframe src="http://caniuse.com/namevalue-storage/embed"></iframe>
+		</section>
+		
+		<section>
+			<h2>WebSQL</h2>
+			<ul>
+				<li>Know SQL? You can use WebSQL</li>
+				<li>"Mini" file-based database (SQLite) in your browser</li>
+				<li>You can open a database, run SQL, even use transactions</li>
+				<li>Asynchronous</li>
+				<li><a href="http://www.w3.org/TR/webdatabase/">Spec</a></li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>WebSQL - Possible Uses?</h2>
+			<ul>
+				<li>Storing a <i>lot</i> of content</li>
+				<li>Storing content you want to search</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>WebSQL - How Many/How Big?</h2>
+			<ul>
+				<li>5 megs</li>
+				<li>User may be prompted for more</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>WebSQL - Example</h2>
+			<pre><code>
+db = window.openDatabase("name","1","nice name",5*1024*1024);
+db.readTransaction(function(tx) {
+  tx.executeSql("select id,title from notes", [], 
+    function(tx, results) {
+      for(var i=0, len=results.rows.length; i&lt;len;i++) {
+	    var row = results.rows.item(i);
+	    console.log(i+" id="+row.id+" title="+row.title);
+      }
+    }
+}
+			</code></pre>
+		</section>
+
+		<section>
+			<h2>WebSQL - Demo</h2>
+			<img src="images/Stop-Hammer-Time.jpg">
+		</section>
+
+		<section>
+			<h2>WebSQL - FYI</h2>
+			<ul>
+				<li>Chrome Dev Tools (view/edit)</li>
+				<li>And yeah - run arbitrary SQL</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>WebSQL - When can I use it?</h2>
+			<iframe src="http://caniuse.com/sql-storage/embed"></iframe>
+		</section>
+
+		<section>
+			<h2>IndexedDB</h2>
+			<ul>
+				<li>Storage for "significant amounts of structured data" (source: MDN)</li>
+				<li>More "free form" storage than WebSQL</li>
+				<li>Uses an Index based API</li>
+				<li>Asynchronous + Transaction</li>
+				<li><a href="http://www.w3.org/TR/IndexedDB/">Spec</a></li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>IndexedDB - Index wha???</h2>
+			<ul>
+				<li>Getting values can be done by key (think primary key)</li>
+				<li>And by range (think list) on an index</li>
+				<li>You can make an index on any(*) property</li>
+				<li>No free form search ala SQL</li>
+				<li>So I can do "CamA to CamB" but not "CaXden"</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>IndexedDB - Creation is Tricky</h2>
+			<ul>
+				<li>You can only change structure by changing version</li>
+				<li>If a user had version 1 and your on version 3, you have to maintain the code to update between them</li>
+				<li>So yeah, get it right the first time</li>
+				<li>And oh yeah - Chrome doesn't work right yet</li>
+			</ul>
+			<img src="images/confusing_signs11.jpg">
+		</section>
+
+		<section>
+			<h2>IndexedDB - Basic Terms</h2>
+			<dl>
+				<dt>key</dt>
+				<dd>The primary key, can be autogenerated</dd>
+				<dt>objectstore</dt>
+				<dd>One set of data. Think table.</dd>
+				<dt>index</dt>
+				<dd>A way to get at the data and there can be more than one per object</dd>
+				<dt>cursor</dt>
+				<dd>A way to iterate over objects</dd>
+				<dt>key range</dt>
+				<dd>A way to specify a range of keys to be returned</dd>
+			</dl>
+		</section>
+
+		<section>
+			<h2>IndexedDB - Demo</h2>
+			<img src="images/Stop-Hammer-Time.jpg">
+		</section>	
+
+		<section>
+			<h2>IndexedDB - FYI</h2>
+			<ul>
+				<li>Chrome Dev Tools (view)</li>
+			</ul>
+		</section>			
+
+	</div>
+</div>
+
+<!--
+<li>Cookies (no, really)</li>
+<li>Local/Session Storage</li>
+<li>WebSQL</li>
+<li>IndexedDB</li>
+<li>File API</li>
+-->
+
+<script src="revealjs/js/reveal.js"></script>
+<script src="revealjs/lib/js/highlight.js"></script>
+<script>
+Reveal.initialize({
+	progress:false,
+	theme:"default",
+	history:true
+});
+hljs.initHighlightingOnLoad();
+</script>
+
+</body>
+</html>

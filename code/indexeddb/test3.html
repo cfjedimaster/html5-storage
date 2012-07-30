@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+
+<head>
+<script src="../jquery.js"></script>
+<title>IndexedDB Demo</title>
+<script>
+// https://developer.mozilla.org/en/IndexedDB/Using_IndexedDB
+var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
+var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+
+//global handle
+var db;
+
+$(document).ready(function() {
+
+	//remove to test
+	//indexedDB.deleteDatabase("test3");
+
+	var openRequest = indexedDB.open("test3",1);
+
+	//I'm run when version changes, or on first hit
+	//This is where Chrome fails
+	//Demo of how to fix Chrome - http://www.raymondcamden.com/index.cfm/2012/6/12/Issues-with-IndexedDB-and-Chrome
+	openRequest.onupgradeneeded = function(e) {
+		console.log("running onupgradeneeded");
+
+		var thisDb = e.target.result;
+
+		//uncomment for quick testing
+		//thisDb.deleteObjectStore("test");
+
+		//Create objectStore
+		if(!thisDb.objectStoreNames.contains("test")) {
+			console.log("I need to make the test objectstore");
+			var objectStore = thisDb.createObjectStore("test", { keyPath: "id", autoIncrement:true });  
+		}
+
+
+	}
+
+	//I'm run when after onupgradeneeded, if it is run
+	openRequest.onsuccess = function(e) {
+		console.log("Ready to roll...");
+
+		db = e.target.result;
+
+		db.onerror = function(event) {
+		  // Generic error handler for all errors targeted at this database's
+		  // requests!
+		  console.log("Database error: " + event.target.errorCode);
+		  console.dir(event.target);
+		};
+
+
+		//Now we can listen for data adds and lists
+		$("#addData").on("click", addData);
+		$(document).on("click",".delLink", deleteItem); 
+		displayData();		
+
+	}
+
+});
+
+function displayData() {
+
+	var s = "";
+
+	db.transaction(["test"], "readonly").objectStore("test").openCursor().onsuccess = function(event) {
+		var cursor = event.target.result;
+		if(cursor) {
+			console.log(cursor.key);
+			console.log(cursor.value);
+			s += "<h2>Key "+cursor.key+"</h2><p>";
+			for(var field in cursor.value) {
+				s+= field+"="+cursor.value[field]+"<br/>";
+			}
+
+			s+="<a href='' data-key='"+cursor.key+"' class='delLink'>Delete</a>";
+			s+="</p>";
+			cursor.continue();
+		}
+		$("#data").html(s);
+	}
+
+}
+
+function addData() {
+
+	db.transaction(["test"], "readwrite").objectStore("test").add(
+					{
+						"name":"Something random "+Math.floor(Math.random()*1000),
+						"created":new Date()
+					}
+				).onsuccess = displayData;
+	
+}
+
+function deleteItem(e) {
+	e.preventDefault();
+	var key = $(this).data("key");
+
+	var request = db.transaction(["test"], "readwrite")  
+	                .objectStore("test")  
+	                .delete(key);  
+
+	request.onsuccess = displayData;
+}
+
+</script>
+</head>
+
+<body>
+
+<button id="addData">Add Stuff</button>
+
+<div id="data"></div>
+
+
+</body>
+</html>
