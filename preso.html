@@ -14,6 +14,13 @@ html.intro body {
 	background-size: 100%;
 }
 
+html.wrapup body {
+	background:url("images/swthrone.jpg");
+	background-position:center;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+}
+
 html.intro h1, html.intro p {
 	background-color: rgba(0,0,0,0.7);
 }
@@ -114,7 +121,7 @@ dd {
 				<li>Local/Session Storage</li>
 				<li>WebSQL</li>
 				<li>IndexedDB</li>
-				<li>File API</li>
+				<li>FileSystem API</li>
 			</ul>
 			<aside class="notes">
 				Maybe mention offline support since it could possible be considered storage.
@@ -382,6 +389,100 @@ db.readTransaction(function(tx) {
 			</p>
 		</section>
 
+		<section>
+			<h2>FileSystem</h2>
+			<ul>
+				<li>Not the File API (<a href="http://www.w3.org/TR/FileAPI/">spec</a>), but we use it</li>
+				<li>A sandbox for temporary/persistent file storage</li>
+				<li>Asynchronous API for reading/writing/deleting directories and files</li>
+				<li>Basic quota API (required for persistent storage)</li>
+				<li><a href="http://www.w3.org/TR/file-system-api/">Spec</a></li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>FileSystem - Possible Uses?</h2>
+			<ul>
+				<li>Storing binary resources for games/apps</li>
+				<li>Storing drag/dropped files</li>
+				<li>User may be prompted for more</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>FileSystem - How Big?</h2>
+			<ul>
+				<li>Ask the Quota API and good luck with that</li>
+				<li>User will be prompted for persistent storage</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>What you can do (OOTB)</h2>
+			<ul>
+				<li>Create a single directory</li>
+				<li>List the contents of a directory</li>
+				<li>Remove a directory recursively</li>
+				<li>Create a file</li>
+				<li>Get file metadata</li>
+				<li>Remove a file</li>
+				<li>Copy or move a file</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>FileSystem Key Objects</h2>
+			<ul>
+				<li>FileSystem</li>
+				<li>DirectoryReader</li>
+				<li>DirectoryEntry</li>
+				<li>FileReader</li>
+				<li>FileWriter</li>
+				<li>FileEntry</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>FileSystem - Demo</h2>
+			<img src="images/Stop-Hammer-Time.jpg">
+		</section>	
+
+		<section>
+			<h2>FileSystem - FYI</h2>
+			<ul>
+				<li>HTML5 File System Explorer (<a href="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0CGsQFjAA&url=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fnhnjmpbdkieehidddbaeajffijockaea&ei=IO4aUIyAHYWfiAK8poHACg&usg=AFQjCNE1pcsYhXfK-V9o5pElMHiL1d3vVA&sig2=e4jOczuBDEYuZHNZxTJOLg">link</a>)</li>
+			</ul>
+		</section>	
+
+		<section>
+			<h2>FileSystem - When can I use it?</h2>
+			<iframe src="http://caniuse.com/filesystem/embed"></iframe>
+		</section>
+
+		<section data-state="wrapup">
+			<h1>Wrap Up</h1>
+		</section>
+
+		<section>
+			<h2>Useful Resources</h2>
+			<ul>
+				<li>html5rocks.com</li>
+				<li>diveintohtml5.info</li>
+				<li>developer.mozilla.org</li>
+				<li>html5bookmarks.com</li>
+			</ul>
+		</section>
+
+
+		<section>
+			<h2>Questions?</h2>
+			<ul>
+				<li>email: raymondcamden@gmail.com</li>
+				<li>web: raymondcamden.com</li>
+				<li>stupid crap: @cfjedimaster</li>
+			</ul>
+			<img src="images/kirk-yelling-kahn.jpg" title="Why include Kirk? Because Kirk is awesome.">
+		</section>
 
 	</div>
 </div>
@@ -392,6 +493,8 @@ db.readTransaction(function(tx) {
 <li>WebSQL</li>
 <li>IndexedDB</li>
 <li>File API</li>
+
+todo resource sites
 -->
 
 <script src="revealjs/js/reveal.js"></script>
