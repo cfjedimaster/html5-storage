@@ -5,4 +5,5 @@ My presentation on HTML5 Storage. You can view the presentation at preso.html an
 
 Issues/Updates
 =====
-Missing the File API section. TBD.
+Missing the File API section. 
+File API stuff done.

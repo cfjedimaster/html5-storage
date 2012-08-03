@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+
+<head>
+<script src="../jquery.js"></script>
+<title>FileSystem Demo</title>
+<script>
+var fs;
+
+//credit: html5rocks.com:
+function errorHandler(e) {
+  var msg = '';
+  switch (e.code) {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'QUOTA_EXCEEDED_ERR';
+      break;
+    case FileError.NOT_FOUND_ERR:
+      msg = 'NOT_FOUND_ERR';
+      break;
+    case FileError.SECURITY_ERR:
+      msg = 'SECURITY_ERR';
+      break;
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'INVALID_MODIFICATION_ERR';
+      break;
+    case FileError.INVALID_STATE_ERR:
+      msg = 'INVALID_STATE_ERR';
+      break;
+    default:
+      msg = 'Unknown Error';
+      break;
+  };
+
+  console.log('Error: ' + msg);
+  console.dir(e);
+}
+
+$(document).ready(function() {
+
+	//This demo ONLY handles storage, so if not supported, we leave immediately.
+	//Much like showing up to a party, seeing bad beer, and splitting.
+	//In a real app, we would probably do a lot more even if this support wasn't there.
+	if(!window.webkitStorageInfo) return;
+
+	/*
+	I tried 20 gigs... and it worked. Holy crap balls!
+	I then tried 2 terabytes - and it worked too.
+	*/
+
+	//Begin by making a request for space
+	window.webkitStorageInfo.requestQuota(window.PERSISTENT, 20*1024*1024, function(grantedBytes) {
+		console.log("I was granted "+grantedBytes+" bytes.");
+		window.webkitRequestFileSystem(window.PERSISTENT, grantedBytes, onInitFs, errorHandler);
+	}, errorHandler);
+
+
+	function onInitFs(filesystem) {
+		console.log("I give you - the file system...");
+    //make a global copy
+    fs=filesystem;
+    readContents();
+    $("#save").on("click", saveHandler);
+	};
+
+});
+
+//Credit: http://www.html5rocks.com/en/tutorials/file/filesystem/
+function readContents() {
+
+  fs.root.getFile('note.txt', {create:true}, function(fileEntry) {
+
+    fileEntry.file(function(f) {
+      var reader = new FileReader();
+
+      reader.onloadend = function(e) {
+        console.log("Read in: "+this.result);
+        $("#note").val(this.result);
+      }
+
+      reader.readAsText(f);
+    }, errorHandler);
+
+  }, errorHandler);
+
+}
+
+function saveHandler(e) {
+  e.preventDefault();
+  var contents = $("#note").val();
+  $("#save").attr("disabled", "disabled");
+
+  fs.root.getFile('note.txt', {}, function(fileEntry) {
+
+    fileEntry.createWriter(function(fileWriter) {
+
+      fileWriter.onwriteend = function(e) {
+        $("#save").removeAttr("disabled");
+        console.log("Saved...");
+      }
+
+      var blob = new Blob([contents], {type:'text/plain'});
+      fileWriter.write(blob);
+
+      console.dir(fileWriter);
+    }, errorHandler);
+
+  }, errorHandler);
+
+}
+
+</script>
+<style>
+#note {
+  width: 500px;
+  height: 300px;
+}
+</style>
+</head>
+
+<body>
+
+<textarea id="note"></textarea><br/>
+<button id="save">Save</button>
+
+
+</body>
+</html>
