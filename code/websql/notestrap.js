@@ -81,15 +81,15 @@ $(document).ready(function() {
 		db.transaction(function(tx) {
 			var existingId = $("#editDiv").data("noteid");
 			if(existingId) {
-				tx.executeSql("update notes set title=?, body=?, updated=? where id=?", [title, body, new Date().getTime(), existingId], getNotes);
+				tx.executeSql("update notes set title=?, body=?, updated=? where id=?", [title, body, new Date().getTime(), existingId]);
 			} else {
-				tx.executeSql("insert into notes(title,body,updated) values(?,?,?)", [title, body, new Date().getTime()], getNotes);
+				tx.executeSql("insert into notes(title,body,updated) values(?,?,?)", [title, body, new Date().getTime()]);
 			}
 			$("#title").val("");
 			$("#body").val("");
 			$("#editDiv").removeData("noteid").hide();
 			$("#editDiv").hide();
-		}, dbError);
+		}, dbError, getNotes);
 
 	});
 
