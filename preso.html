@@ -58,12 +58,14 @@ dd {
 
 		<section>
 			<h2>This Guy</h2>
-			<ul>
+			<ul style="float:left">
 				<li>Raymond Camden</li>
-				<li>Developer Evangelist</li>
+				<li>Developer Evangelist for Adobe</li>
 				<li>Blogging at raymondcamden.com</li>
 				<li>Tweeting at @cfjedimaster</li>
 			</ul>
+			<p/>
+			<img src="images/ray.png">
 		</section>
 
 		<section>
@@ -161,7 +163,11 @@ dd {
 		<section>
 			<h2>Cookies - Example</h2>
 			<pre><code>
+//set with...
 document.cookie="key=value;args..";
+
+//read with...
+console.log(document.cookie);
 			</code></pre>
 		</section>
 
@@ -196,6 +202,10 @@ document.cookie="key=value;args..";
 				<li>Search history</li>
 				<li>"Favorited" content items</li>
 				<li>User "State" vs User "Storage" (credit: Ido Green)</li>
+				<!--
+				As a reminder to myself, the idea is that you can save 'state' as in form values, etc.
+				Storage implies lots of ad hoq data
+				-->
 			</ul>
 		</section>
 
@@ -327,8 +337,8 @@ db.readTransaction(function(tx) {
 			<h2>IndexedDB - Index wha???</h2>
 			<ul>
 				<li>Getting values can be done by key (think primary key)</li>
+				<li>You can make an index on (most) any property</li>
 				<li>And by range (think list) on an index</li>
-				<li>You can make an index on any(*) property</li>
 				<li>No free form search ala SQL</li>
 				<li>So I can do "CamA to CamB" but not "CaXden"</li>
 			</ul>
@@ -340,7 +350,7 @@ db.readTransaction(function(tx) {
 				<li>You can only change structure by changing version</li>
 				<li>If a user had version 1 and you're on version 3, you have to maintain the code to update between them</li>
 				<li>So yeah, get it right the first time</li>
-				<li>And oh yeah - Chrome doesn't work right yet</li>
+				<li><strike>And oh yeah - Chrome doesn't work right yet</strike></li>
 			</ul>
 			<img src="images/confusing_signs11.jpg">
 		</section>
@@ -406,7 +416,6 @@ db.readTransaction(function(tx) {
 			<ul>
 				<li>Storing binary resources for games/apps</li>
 				<li>Storing drag/dropped files</li>
-				<li>User may be prompted for more</li>
 			</ul>
 		</section>
 
@@ -421,9 +430,9 @@ db.readTransaction(function(tx) {
 		</section>
 
 		<section>
-			<h2>What you can do (OOTB)</h2>
+			<h2>What you can do</h2>
 			<ul>
-				<li>Create a single directory</li>
+				<li>Create a directory</li>
 				<li>List the contents of a directory</li>
 				<li>Remove a directory recursively</li>
 				<li>Create a file</li>
@@ -473,10 +482,10 @@ db.readTransaction(function(tx) {
 		<section>
 			<h2>Useful Resources</h2>
 			<ul>
+				<li>developer.mozilla.org</li>
                 <li>webplatform.org</li>
 				<li>html5rocks.com</li>
 				<li>diveintohtml5.info</li>
-				<li>developer.mozilla.org</li>
 				<li>html5bookmarks.com</li>
 			</ul>
 		</section>

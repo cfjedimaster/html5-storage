@@ -11,7 +11,7 @@ $(document).ready(function () {
 	$("#testButton").on("click", function() {
 		//count cookies
 		var cookiecount = document.cookie.split(";").length;
-		document.cookie="newcookie"+(cookiecount+1)+"=foo";
+		document.cookie="newcookie"+(cookiecount+(Math.floor(Math.random()*10000)))+"=foo";
 		console.log("You now have "+(cookiecount+1)+" cookies.");
 	});
 

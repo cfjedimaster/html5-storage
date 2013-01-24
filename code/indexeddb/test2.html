@@ -1,78 +1,124 @@
 <!doctype html>
 <html>
-
 <head>
-<script src="../jquery.js"></script>
-<title>IndexedDB Demo</title>
-<script>
-// https://developer.mozilla.org/en/IndexedDB/Using_IndexedDB
-var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
-var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+</head>
+    
+<body>
 
-//global handle
+<script>
 var db;
 
-$(document).ready(function() {
+function indexedDBOk() {
+	return "indexedDB" in window;
+}
 
-	//remove to test
-	//indexedDB.deleteDatabase("test");
+document.addEventListener("DOMContentLoaded", function() {
 
-	var openRequest = indexedDB.open("test",1);
+	//No support? Go in the corner and pout.
+	if(!indexedDBOk) return;
 
-	//I'm run when version changes, or on first hit
-	//This is where Chrome fails
-	//Demo of how to fix Chrome - http://www.raymondcamden.com/index.cfm/2012/6/12/Issues-with-IndexedDB-and-Chrome
+	var openRequest = indexedDB.open("html5storage_test2",1);
+
 	openRequest.onupgradeneeded = function(e) {
+		var thisDB = e.target.result;
+
 		console.log("running onupgradeneeded");
 
-		var thisDb = e.target.result;
-
-		//uncomment for quick testing
-		//thisDb.deleteObjectStore("test");
-
-		//Create objectStore
-		if(!thisDb.objectStoreNames.contains("test")) {
-			console.log("I need to make the test objectstore");
-			var objectStore = thisDb.createObjectStore("test", { keyPath: "id", autoIncrement:true });  
+		if(!thisDB.objectStoreNames.contains("people")) {
+			thisDB.createObjectStore("people", {autoIncrement:true});
 		}
-
-
 	}
 
-	//I'm run when after onupgradeneeded, if it is run
 	openRequest.onsuccess = function(e) {
-		console.log("Ready to roll...");
+		console.log("running onsuccess");
 
 		db = e.target.result;
 
-		db.onerror = function(event) {
-		  // Generic error handler for all errors targeted at this database's
-		  // requests!
-		  console.log("Database error: " + event.target.errorCode);
-		  console.dir(event.target);
-		};
+		//Listen for add clicks
+		document.querySelector("#addButton").addEventListener("click", addPerson, false);
 
+		//Listen for get clicks
+		document.querySelector("#getButton").addEventListener("click", getPerson, false);
 
-		//Now we can listen for data adds and lists
-		$("#addData").on("click", addData);
-		displayData();		
+		//Listen for get clicks
+		document.querySelector("#getAllButton").addEventListener("click", getPeople, false);
 
+	}	
+
+	openRequest.onerror = function(e) {
+		//Do something for the error
 	}
 
-});
 
-function displayData() {
+},false);
 
-	var transaction = db.transaction(["test"], "readonly");
-	var objectStore = transaction.objectStore("test");
-	var request = objectStore.openCursor();
+
+function addPerson(e) {
+	var name = document.querySelector("#name").value;
+	var email = document.querySelector("#email").value;
+
+	console.log("About to add "+name+"/"+email);
+
+	//Get a transaction
+	//default for OS list is all, default for type is read
+	var transaction = db.transaction(["people"],"readwrite");
+	//Ask for the objectStore
+	var store = transaction.objectStore("people");
+
+	//Define a person
+	var person = {
+		name:name,
+		email:email,
+		created:new Date()
+	}
+
+	//Perform the add
+	var request = store.add(person);
+
+	request.onerror = function(e) {
+		console.log("Error",e.target.error.name);
+		//some type of error handler
+	}
+
+	request.onsuccess = function(e) {
+		console.log("Woot! Did it");
+	}
+}
+
+function getPerson(e) {
+	var key = document.querySelector("#key").value;
+	if(key === "" || isNaN(key)) return;
+
+	var transaction = db.transaction(["people"],"readonly");
+	var store = transaction.objectStore("people");
+
+	var request = store.get(Number(key));
+
+	request.onsuccess = function(e) {
+
+		var result = e.target.result;
+		console.dir(result);
+		if(result) {
+			var s = "<h2>Key "+key+"</h2><p>";
+			for(var field in result) {
+				s+= field+"="+result[field]+"<br/>";
+			}
+			document.querySelector("#status").innerHTML = s;
+		} else {
+			document.querySelector("#status").innerHTML = "<h2>No match</h2>";
+		}	
+	}	
+
+
+}
+
+function getPeople(e) {
+
 	var s = "";
 
-	request.onsuccess = function(event) {
-		var cursor = event.target.result;
+	db.transaction(["people"], "readonly").objectStore("people").openCursor().onsuccess = function(e) {
+		var cursor = e.target.result;
 		if(cursor) {
-			console.log(cursor.key);
-			console.log(cursor.value);
 			s += "<h2>Key "+cursor.key+"</h2><p>";
 			for(var field in cursor.value) {
 				s+= field+"="+cursor.value[field]+"<br/>";
@@ -80,33 +126,30 @@ function displayData() {
 			s+="</p>";
 			cursor.continue();
 		}
-		$("#data").html(s);
+		document.querySelector("#status2").innerHTML = s;
 	}
-
-}
-
-function addData() {
-	var transaction = db.transaction(["test"], "readwrite");
-	var objectStore = transaction.objectStore("test");
-	var request = objectStore.add(
-					{
-						"name":"Something random "+Math.floor(Math.random()*1000),
-						"created":new Date()
-					}
-				);
-	
-	request.onsuccess = displayData;
 }
 
 </script>
-</head>
 
-<body>
+<input type="text" id="name" placeholder="Name"><br/>
+<input type="email" id="email" placeholder="Email"><br/>
+<button id="addButton">Add Data</button>
 
-<button id="addData">Add Stuff</button>
+<p/>
 
-<div id="data"></div>
+<input type="number" id="key" placeholder="Key"><br/>
+<button id="getButton">Get Data</button>
 
+<p/>
+
+<div id="status"></div>
+
+<button id="getAllButton">Get Everyone</button>
+
+<p/>
+
+<div id="status2"></div>
 
 </body>
 </html>

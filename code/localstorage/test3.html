@@ -8,24 +8,30 @@ function init() {
 
 	if(window.localStorage) {
 
+		//If I have data, fetch it and preset
 		if(localStorage["person"]) {
 			var person = JSON.parse(localStorage["person"]);
 			document.querySelector("#name").value = person.name;
 			document.querySelector("#age").value = person.age;
 			document.querySelector("#email").value = person.email;
 		}
+		
+        //Listen for all <input> fields and thei input event
+		var inputs = document.querySelectorAll("input");
+		for(var i=0; i<inputs.length; i++) {
+		    inputs[i].addEventListener("input", function(e) {
+                e.preventDefault();
+                var name = document.querySelector("#name").value;
+                var age = document.querySelector("#age").value;
+                var email = document.querySelector("#email").value;
+                var person = {"name":name, "age":age, "email":email};
+                localStorage["person"] = JSON.stringify(person);
+                console.log("Did it...");
+            });
+		
+		}
 
-		document.querySelector("#storeButton").addEventListener("click",function(e) {
-			e.preventDefault();
-			var name = document.querySelector("#name").value;
-			var age = document.querySelector("#age").value;
-			var email = document.querySelector("#email").value;
-			var person = {"name":name, "age":age, "email":email};
-			localStorage["person"] = JSON.stringify(person);
-			console.log("Did it...");
-		});
 	}
-
 
 }
 </script>
